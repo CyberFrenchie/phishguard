@@ -46,8 +46,6 @@ def is_suspicious_url(url):
     domain_full = re.sub(r'^https?://(www\.)?', '', url).split('/')[0].split('?')[0].lower()
     domain_clean = domain_full.split('.')[0]  # e.g. 'paypa1' from paypa1.com
     
-    # Debug print - remove this line after testing
-    print(f"[DEBUG] Checking domain: {domain_full} → cleaned: {domain_clean}")
     
     for legit in common_legit:
         dist = levenshtein_distance(domain_clean, legit)
