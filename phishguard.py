@@ -1,6 +1,23 @@
 import re
 import sys
 
+def levenshtein_distance(s1, s2):
+    """Simple Levenshtein distance for typosquatting check"""
+    if len(s1) < len(s2):
+        return levenshtein_distance(s2, s1)
+    if len(s2) == 0:
+        return len(s1)
+    previous_row = range(len(s2) + 1)
+    for i, c1 in enumerate(s1):
+        current_row = [i + 1]
+        for j, c2 in enumerate(s2):
+            insertions = previous_row[j + 1] + 1
+            deletions = current_row[j] + 1
+            substitutions = previous_row[j] + (c1 != c2)
+            current_row.append(min(insertions, deletions, substitutions))
+        previous_row = current_row
+    return previous_row[-1]
+
 def is_suspicious_url(url):
     """Basic URL phishing checks"""
     if not url.startswith(('http://', 'https://')):
@@ -19,12 +36,15 @@ def is_suspicious_url(url):
         if re.search(pattern, url, re.IGNORECASE):
             return True, f"Matched suspicious pattern: {pattern}"
     
-    # Typosquatting rough check (e.g., g00gle.com)
-    common_legit = ['google', 'paypal', 'amazon', 'microsoft', 'apple']
+    # Typosquatting check
+    common_legit = ['google', 'paypal', 'amazon', 'microsoft', 'apple', 'facebook', 'netflix', 'bankofamerica', 'chase']
+    # Extract base domain (e.g., 'paypa1.com' → 'paypa1')
     domain = re.sub(r'^https?://(www\.)?', '', url).split('/')[0].lower()
+    domain_clean = domain.split('.')[0]  # Strip TLD
     for legit in common_legit:
-        if legit in domain and domain != legit + '.com':
-            return True, f"Possible typosquatting near '{legit}'"
+        dist = levenshtein_distance(domain_clean, legit)
+        if 1 <= dist <= 2 and len(domain_clean) >= len(legit) - 2:  # Allow small edits/inserts
+            return True, f"Possible typosquatting: '{domain_clean}' close to '{legit}' (distance {dist})"
     
     return False, "No obvious URL red flags"
 
