@@ -14,7 +14,7 @@ setup(
     description='Simple open-source CLI tool to detect potential phishing in URLs and text',
     long_description=open('README.md').read() if __name__ != '__main__' else '',
     long_description_content_type='text/markdown',
-    url='https://github.com/_CyberFrenchie/phishguard',
+    url='https://github.com/CyberFrenchie/phishguard',
     license='MIT',
     classifiers=[
         'Programming Language :: Python :: 3',
